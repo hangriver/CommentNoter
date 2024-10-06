@@ -1,47 +1,124 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
+  <q-page class="">
+    <q-card width="100%" style="margin: 20px; padding: 10px">
+      <q-input
+        v-model="currentComment.text"
+        type="textarea"
+        input-style="height: 200px"
+        label="评论"
+      ></q-input>
+      <q-radio v-model="currentComment.type" :val="0" label="推荐"></q-radio>
+      <q-radio v-model="currentComment.type" :val="1" label="一般"></q-radio>
+      <q-radio v-model="currentComment.type" :val="2" label="不推荐"></q-radio>
+      <q-separator />
+      <q-card-actions>
+        <div style="text-align: right; width: 100%">
+          <q-btn-group>
+            <q-btn color="red" label="清除" padding="30px" />
+            <q-btn color="primary" style="width: 200px" padding="30px"
+              >添加</q-btn
+            >
+          </q-btn-group>
+        </div>
+      </q-card-actions>
+    </q-card>
+
+    <div style="margin: 20px">
+      <q-btn-group spread>
+        <q-btn size="lg" color="green-5">导出</q-btn>
+      </q-btn-group>
+    </div>
+
+    <!-- Noted comments below. -->
+    <q-card
+      width="100%"
+      style="margin: 20px; padding: 10px"
+      v-for="comment in comments"
+      :key="comment._id"
+    >
+      <q-card-section header>
+        <div style="display: inline-block; width: 10%"># {{ comment._id }}</div>
+        <div style="display: inline-block; width: 30%; float: right">
+          <q-btn dense flat color="red">删除</q-btn>
+          <div style="width: 20px; display: inline-block">&nbsp;</div>
+          <q-btn dense flat color="primary">修改</q-btn>
+        </div>
+      </q-card-section>
+      <q-separator />
+      <q-item>
+        <q-item-section side> 类型： </q-item-section>
+        <q-item-section> 推荐 </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section side> 文本： </q-item-section>
+        <q-item-section
+          style="
+            overflow-wrap: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* justify-content: normal; */
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            display: -webkit-box;
+          "
+        >
+          {{ comment.content }}
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section side> 关键词： </q-item-section>
+        <q-item-section>
+          {{ comment.keywords?.length ? '' : '关键词处理中...' }}
+          <q-chip
+            removable
+            color="primary"
+            outline
+            v-for="kw in comment.keywords"
+            :key="kw"
+            >{{ kw }}</q-chip
+          >
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section side> 摘要： </q-item-section>
+        <q-item-section
+          style="
+            overflow-x: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          "
+        >
+          {{ comment.abstract ? comment.abstract : '摘要处理中...' }}
+        </q-item-section>
+      </q-item>
+    </q-card>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Todo, Meta } from 'components/models';
-import ExampleComponent from 'components/ExampleComponent.vue';
+import { ref, Ref } from 'vue';
+import { Comment, CommentTypeEnum } from 'src/components/models';
 
 defineOptions({
-  name: 'IndexPage'
+  name: 'IndexPage',
 });
 
-const todos = ref<Todo[]>([
-  {
-    id: 1,
-    content: 'ct1'
-  },
-  {
-    id: 2,
-    content: 'ct2'
-  },
-  {
-    id: 3,
-    content: 'ct3'
-  },
-  {
-    id: 4,
-    content: 'ct4'
-  },
-  {
-    id: 5,
-    content: 'ct5'
-  }
-]);
-
-const meta = ref<Meta>({
-  totalCount: 1200
+const currentComment = ref({
+  text: '',
+  type: 0, // 0 for positive, 1 for neutral, 2 for negative
 });
+
+const comments: Ref<Array<Comment>> = ref([]);
+
+const lorem = ref(`
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phaselluseros lorem, scelerisque sed pulvinar sit amet, varius vitae ipsum. Proin finibus mauris eu ex molestie fermentum. Etiam aliquam imperdietex, a rhoncus magna gravida id. Praesent vel arcu vitae orci euismodultrices at eu elit. Sed consectetur congue tortor sed pulvinar. Nullain dolor libero. Etiam ut augue tincidunt orci tristique molestie.
+`);
+const exampleComment: Comment = {
+  _id: 1,
+  type: CommentTypeEnum.Positive,
+  content: lorem.value,
+  keywords: ['test 1', 'test 2'],
+  abstract: undefined,
+};
+comments.value.push(exampleComment);
 </script>
