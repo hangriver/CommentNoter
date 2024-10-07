@@ -98,6 +98,7 @@
 <script setup lang="ts">
 import { ref, Ref } from 'vue';
 import { Comment, CommentTypeEnum } from 'src/components/models';
+import { CommentService } from 'src/service/comment_service';
 
 defineOptions({
   name: 'IndexPage',
@@ -121,4 +122,8 @@ const exampleComment: Comment = {
   abstract: undefined,
 };
 comments.value.push(exampleComment);
+
+const service = new CommentService();
+service.getComments().then((v) => console.log('select:', v));
+service.addComment(exampleComment);
 </script>

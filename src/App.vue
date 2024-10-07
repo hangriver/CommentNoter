@@ -3,7 +3,11 @@
 </template>
 
 <script setup lang="ts">
+import { initJsStore } from './service/idb_service';
+
 defineOptions({
-  name: 'App'
+  name: 'App',
 });
+
+initJsStore();
 </script>

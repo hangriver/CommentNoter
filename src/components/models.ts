@@ -15,9 +15,9 @@ export enum CommentTypeEnum {
   Negative,
 }
 export interface Comment {
-  _id: number;
+  _id?: number;
   type: CommentTypeEnum;
   content: string;
-  keywords: Array<string> | null | undefined;
-  abstract: string | null | undefined;
+  keywords?: Array<string> | null | undefined;
+  abstract?: string | null | undefined;
 }

@@ -13,23 +13,20 @@ const getDatabase = () => {
         notNull: true,
         dataType: DATA_TYPE.Number,
       },
-      gender: {
-        dataType: DATA_TYPE.String,
-        default: 'male',
-      },
-      country: {
-        notNull: true,
+      content: {
         dataType: DATA_TYPE.String,
       },
-      city: {
+      keywords: {
+        dataType: DATA_TYPE.Array,
+      },
+      abstract: {
         dataType: DATA_TYPE.String,
-        notNull: true,
       },
     },
   };
   const dataBase = {
-    name: 'Vue_Demo',
-    tables: [tblStudent],
+    name: 'Comment_Notes',
+    tables: [tblComment],
   };
   return dataBase;
 };
