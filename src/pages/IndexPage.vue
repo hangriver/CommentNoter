@@ -47,7 +47,7 @@
     >
       <q-card-section header>
         <div style="display: inline-block; width: 10%"># {{ comment._id }}</div>
-        <div style="display: inline-block; width: 30%; float: right">
+        <div style="display: inline-block; width: 40%; float: right">
           <q-btn
             dense
             flat
