@@ -2,7 +2,7 @@
   <q-page class="">
     <q-card width="100%" style="margin: 20px; padding: 10px">
       <q-input
-        v-model="currentComment.text"
+        v-model="currentComment.content"
         type="textarea"
         input-style="height: 200px"
         label="评论"
@@ -14,8 +14,17 @@
       <q-card-actions>
         <div style="text-align: right; width: 100%">
           <q-btn-group>
-            <q-btn color="red" label="清除" padding="30px" />
-            <q-btn color="primary" style="width: 200px" padding="30px"
+            <q-btn
+              color="red"
+              label="清除"
+              padding="30px"
+              @click="clearCurrentComment"
+            />
+            <q-btn
+              color="primary"
+              style="width: 200px"
+              padding="30px"
+              @click="addComment(currentComment)"
               >添加</q-btn
             >
           </q-btn-group>
@@ -39,7 +48,13 @@
       <q-card-section header>
         <div style="display: inline-block; width: 10%"># {{ comment._id }}</div>
         <div style="display: inline-block; width: 30%; float: right">
-          <q-btn dense flat color="red">删除</q-btn>
+          <q-btn
+            dense
+            flat
+            color="red"
+            @click="removeComment(comment._id ? comment._id : -1)"
+            >删除</q-btn
+          >
           <div style="width: 20px; display: inline-block">&nbsp;</div>
           <q-btn dense flat color="primary">修改</q-btn>
         </div>
@@ -47,7 +62,15 @@
       <q-separator />
       <q-item>
         <q-item-section side> 类型： </q-item-section>
-        <q-item-section> 推荐 </q-item-section>
+        <q-item-section>
+          {{
+            comment.type == CommentTypeEnum.Positive
+              ? '推荐'
+              : comment.type == CommentTypeEnum.Neutral
+              ? '一般'
+              : '不推荐'
+          }}
+        </q-item-section>
       </q-item>
       <q-item>
         <q-item-section side> 文本： </q-item-section>
@@ -99,31 +122,69 @@
 import { ref, Ref } from 'vue';
 import { Comment, CommentTypeEnum } from 'src/components/models';
 import { CommentService } from 'src/service/comment_service';
+import { OpenAI } from 'openai';
 
 defineOptions({
   name: 'IndexPage',
 });
 
-const currentComment = ref({
-  text: '',
-  type: 0, // 0 for positive, 1 for neutral, 2 for negative
+const currentComment: Ref<Comment> = ref({
+  content: '',
+  type: CommentTypeEnum.Positive, // 0 for positive, 1 for neutral, 2 for negative
 });
 
 const comments: Ref<Array<Comment>> = ref([]);
 
-const lorem = ref(`
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phaselluseros lorem, scelerisque sed pulvinar sit amet, varius vitae ipsum. Proin finibus mauris eu ex molestie fermentum. Etiam aliquam imperdietex, a rhoncus magna gravida id. Praesent vel arcu vitae orci euismodultrices at eu elit. Sed consectetur congue tortor sed pulvinar. Nullain dolor libero. Etiam ut augue tincidunt orci tristique molestie.
-`);
-const exampleComment: Comment = {
-  _id: 1,
-  type: CommentTypeEnum.Positive,
-  content: lorem.value,
-  keywords: ['test 1', 'test 2'],
-  abstract: undefined,
-};
-comments.value.push(exampleComment);
-
 const service = new CommentService();
-service.getComments().then((v) => console.log('select:', v));
-service.addComment(exampleComment);
+
+const fetchNoCors = async (
+  url: string | URL | globalThis.Request,
+  options?: RequestInit
+) => {
+  if (options) options.mode = 'no-cors';
+  const response = await fetch(url, options);
+  return response;
+};
+const openai = new OpenAI({
+  apiKey: '',
+  dangerouslyAllowBrowser: true,
+  fetch: fetchNoCors,
+});
+
+openai.chat.completions.create({
+  model: 'chatgpt-4o-latest',
+  messages: [{ role: 'user', content: 'Say hello world!' }],
+});
+
+// Logic codes below
+const clearCurrentComment = () => {
+  currentComment.value.content = '';
+};
+
+const getComments = () => {
+  service.getComments().then((v) => {
+    console.log('select:', v);
+    comments.value = v;
+  });
+};
+getComments(); // init page, load data
+
+const addComment = async (c: Comment) => {
+  if (c.content.length <= 10) {
+    window.alert('非有效评论');
+    return;
+  }
+  const cs = JSON.stringify(c);
+  await service.addComment(JSON.parse(cs)); // Insert into db
+  // TODO: Call OpenAI API asynchronously for keywords and abstract
+
+  // Renew list
+  getComments();
+};
+
+const removeComment = async (id: number) => {
+  service.removeComment(id).then(() => {
+    getComments();
+  });
+};
 </script>
