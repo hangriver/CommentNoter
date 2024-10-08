@@ -10,7 +10,7 @@ export class CommentService {
 
   getComments() {
     console.log('select');
-    return connection.select<Comment>({
+    return connection.select({
       from: this.tableName,
     });
   }
