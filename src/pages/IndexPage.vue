@@ -38,8 +38,14 @@
     >
       <q-card-section header>
         <div style="display: inline-block; width: 10%"># {{ comment._id }}</div>
-        <div style="display: inline-block; width: 30%; float: right">
-          <q-btn dense flat color="red">删除</q-btn>
+        <div style="display: inline-block; width: 40%; float: right">
+          <q-btn
+            dense
+            flat
+            color="red"
+            @click="removeComment(comment._id ? comment._id : -1)"
+            >删除</q-btn
+          >
           <div style="width: 20px; display: inline-block">&nbsp;</div>
           <q-btn dense flat color="primary">修改</q-btn>
         </div>
